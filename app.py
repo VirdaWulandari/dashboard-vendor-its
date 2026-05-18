@@ -179,7 +179,7 @@ if menu == "Input Form Jadwal":
             df_jadwal = pd.concat([df_jadwal, pd.DataFrame([new_data])], ignore_index=True)
             save_data(df_jadwal)
             st.success(f"Berhasil menambahkan jadwal untuk vendor {vendor_input}!")
-            st.experimental_rerun()
+            st.rerun()
             
     st.markdown("<h3 style='color: #4A3B32;'>📋 Semua Data Jadwal Tersimpan</h3>", unsafe_allow_html=True)
     st.dataframe(df_jadwal, use_container_width=True)
