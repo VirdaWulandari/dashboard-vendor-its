@@ -122,7 +122,7 @@ if st.sidebar.button("🗑️ Kosongkan Semua Data", type="primary"):
         df_kosong = pd.DataFrame(columns=["Tanggal", "Vendor", "Pekerjaan", "Area", "Kebutuhan_Personil", "PIC"])
         save_data(df_kosong)
         st.sidebar.success("Database berhasil dikosongkan!")
-        st.rerun()
+        st.experimental_rerun()
     else:
         st.sidebar.warning("Silakan centang kotak konfirmasi terlebih dahulu!")
 
@@ -179,7 +179,7 @@ if menu == "Input Form Jadwal":
             df_jadwal = pd.concat([df_jadwal, pd.DataFrame([new_data])], ignore_index=True)
             save_data(df_jadwal)
             st.success(f"Berhasil menambahkan jadwal untuk vendor {vendor_input}!")
-            st.rerun()
+            st.experimental_rerun()
             
     st.markdown("<h3 style='color: #4A3B32;'>📋 Semua Data Jadwal Tersimpan</h3>", unsafe_allow_html=True)
     st.dataframe(df_jadwal, use_container_width=True)
@@ -223,7 +223,7 @@ elif menu == "Dashboard Tampilan Vendor":
                 df_jadwal = df_jadwal.drop(index=idx_asli).drop(columns=["Original_Index"], errors='ignore')
                 save_data(df_jadwal)
                 st.success(f"Baris Nomor {no_hapus} berhasil dihapus!")
-                st.rerun()
+                st.experimental_rerun()
         
         st.markdown(" ")
         csv_filter = tabel_tampil.drop(columns=["NO", "Original_Index"]).to_csv(index=False).encode('utf-8')
@@ -282,3 +282,4 @@ elif menu == "Dashboard Tampilan Vendor":
                     save_data(df_jadwal)
                     st.success("Jadwal Berhasil Ditambahkan!")
                     st.rerun()
+                    
