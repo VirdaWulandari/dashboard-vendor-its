@@ -44,13 +44,9 @@ st.markdown("""
             color: #D2B48C;
         }
         
-        /* 6. Mengubah border form dan warna latar dalamnya agar kontras di atas krem */
-        div[data-testid="stForm"] {
-            border: 2px solid #8B5A2B;
-            border-radius: 10px;
-            background-color: #FFFFFF;
-            padding: 20px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.05);
+        /* 6. Mengubah border area input agar senada dengan tema kopi */
+        .block-container div.element-container {
+            font-family: sans-serif;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -133,49 +129,48 @@ if menu == "Input Form Jadwal":
     st.markdown("<h1 style='color: #4A3B32;'>📝 Form Input Penjadwalan Vendor</h1>", unsafe_allow_html=True)
     st.write("Gunakan form di bawah ini untuk menambahkan jadwal baru.")
     
-    with st.form(key="form_input", clear_on_submit=False):
-        col1, col2 = st.columns(2)
+    # KUNCI PERBAIKAN: Input ditaruh di luar st.form agar bersifat interaktif dan dinamis
+    st.markdown("<div style='border: 2px solid #8B5A2B; border-radius: 10px; background-color: #FFFFFF; padding: 20px; box-shadow: 0px 4px 6px rgba(0,0,0,0.05);'>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        tgl_input = st.date_input("Tanggal Pekerjaan", datetime.now())
         
-        with col1:
-            tgl_input = st.date_input("Tanggal Pekerjaan", datetime.now())
+        vendor_select = st.selectbox("Pilih Vendor", LIST_VENDOR)
+        if vendor_select == "LAINNYA (Isi Manual)":
+            vendor_input = st.text_input("✍️ Ketik Nama Vendor Baru di Sini:")
+        else:
+            vendor_input = vendor_select
             
-            # Logika Dropdown Vendor + Input Teks Manual
-            vendor_select = st.selectbox("Pilih Vendor", LIST_VENDOR)
-            if vendor_select == "LAINNYA (Isi Manual)":
-                vendor_input = st.text_input("Ketik Nama Vendor Baru:", placeholder="Contoh: PT MAJU BERSAMA")
-            else:
-                vendor_input = vendor_select
-                
-            pekerjaan_input = st.text_area("Deskripsi Pekerjaan / Temuan PM")
-            
-        with col2:
-            # Logika Dropdown Area + Input Teks Manual
-            area_select = st.selectbox("Pilih Area Kerja", LIST_AREA)
-            if area_select == "LAINNYA (Isi Manual)":
-                area_input = st.text_input("Ketik Nama Area Baru:", placeholder="Contoh: LINE K")
-            else:
-                area_input = area_select
-                
-            personil_input = st.number_input("Kebutuhan Personil / Man Power", min_value=1, value=2, step=1)
-            
-            # Logika Dropdown PIC + Input Teks Manual
-            pic_select = st.selectbox("Pilih PIC", LIST_PIC)
-            if pic_select == "LAINNYA (Isi Manual)":
-                pic_input = st.text_input("Ketik Nama PIC Baru:", placeholder="Contoh: BUDI SUTEDJO")
-            else:
-                pic_input = pic_select
-            
-        submit_button = st.form_submit_button(label="Simpan Jadwal")
+        pekerjaan_input = st.text_area("Deskripsi Pekerjaan / Temuan PM")
         
-    if submit_button:
+    with col2:
+        area_select = st.selectbox("Pilih Area Kerja", LIST_AREA)
+        if area_select == "LAINNYA (Isi Manual)":
+            area_input = st.text_input("✍️ Ketik Nama Area Baru di Sini:")
+        else:
+            area_input = area_select
+            
+        personil_input = st.number_input("Kebutuhan Personil / Man Power", min_value=1, value=2, step=1)
+        
+        pic_select = st.selectbox("Pilih PIC", LIST_PIC)
+        if pic_select == "LAINNYA (Isi Manual)":
+            pic_input = st.text_input("✍️ Ketik Nama PIC Baru di Sini:")
+        else:
+            pic_input = pic_select
+
+    # Tombol simpan dibungkus sendiri agar aman dijalankan publik
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("💾 Simpan Jadwal"):
         if pekerjaan_input.strip() == "":
             st.error("Gagal Menyimpan! Kolom 'Pekerjaan' wajib diisi.")
         elif vendor_select == "LAINNYA (Isi Manual)" and vendor_input.strip() == "":
-            st.error("Gagal Menyimpan! Silakan isi nama vendor baru pada kolom teks.")
+            st.error("Gagal Menyimpan! Anda memilih LAINNYA, mohon isi nama Vendor baru pada kolom teks.")
         elif area_select == "LAINNYA (Isi Manual)" and area_input.strip() == "":
-            st.error("Gagal Menyimpan! Silakan isi nama area baru pada kolom teks.")
+            st.error("Gagal Menyimpan! Anda memilih LAINNYA, mohon isi nama Area baru pada kolom teks.")
         elif pic_select == "LAINNYA (Isi Manual)" and pic_input.strip() == "":
-            st.error("Gagal Menyimpan! Silakan isi nama PIC baru pada kolom teks.")
+            st.error("Gagal Menyimpan! Anda memilih LAINNYA, mohon isi nama PIC baru pada kolom teks.")
         else:
             tgl_formatted = tgl_input.strftime('%d/%m/%Y')
             
@@ -190,10 +185,12 @@ if menu == "Input Form Jadwal":
             
             df_jadwal = pd.concat([df_jadwal, pd.DataFrame([new_data])], ignore_index=True)
             save_data(df_jadwal)
-            st.success(f"Berhasil menambahkan jadwal untuk vendor {vendor_input}!")
+            st.success(f"Berhasil menambahkan jadwal untuk vendor {vendor_input.upper()}!")
             st.rerun()
             
-    st.markdown("<h3 style='color: #4A3B32;'>📋 Semua Data Jadwal Tersimpan</h3>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+            
+    st.markdown("<br><h3 style='color: #4A3B32;'>📋 Semua Data Jadwal Tersimpan</h3>", unsafe_allow_html=True)
     st.dataframe(df_jadwal, use_container_width=True)
     
     csv_data = df_jadwal.to_csv(index=False).encode('utf-8')
@@ -256,46 +253,44 @@ elif menu == "Dashboard Tampilan Vendor":
     st.markdown("---")
     st.markdown(f"<h3 style='color: #4A3B32;'>➕ Tambah Jadwal Cepat untuk {vendor_terpilih}</h3>", unsafe_allow_html=True)
     with st.expander("Klik di sini untuk mengisi hari libur / jadwal kosong minggu ini"):
-        with st.form(key="quick_add", clear_on_submit=False):
-            tgl_q = st.date_input("Tanggal", tgl_filter)
-            pekerjaan_q = st.text_input("Pekerjaan", placeholder="Contoh: SH1: FOLLOW UP TEMUAN PM...")
+        # Di input cepat juga kita keluarkan dari form kaku agar kolom barunya bisa meluncur aktif
+        tgl_q = st.date_input("Tanggal", tgl_filter)
+        pekerjaan_q = st.text_input("Pekerjaan", placeholder="Contoh: SH1: FOLLOW UP TEMUAN PM...")
+        
+        area_select_q = st.selectbox("Area", LIST_AREA, key="q_area")
+        if area_select_q == "LAINNYA (Isi Manual)":
+            area_q = st.text_input("✍️ Ketik Nama Area Baru (Form Cepat):")
+        else:
+            area_q = area_select_q
             
-            area_select_q = st.selectbox("Area", LIST_AREA, key="q_area")
-            if area_select_q == "LAINNYA (Isi Manual)":
-                area_q = st.text_input("Ketik Nama Area Baru (Form Cepat):")
-            else:
-                area_q = area_select_q
+        pic_select_q = st.selectbox("PIC", LIST_PIC, key="q_pic")
+        if pic_select_q == "LAINNYA (Isi Manual)":
+            pic_q = st.text_input("✍️ Ketik Nama PIC Baru (Form Cepat):")
+        else:
+            pic_q = pic_select_q
+            
+        mp_q = st.number_input("Man Power", min_value=1, value=2)
+        
+        if st.button("🚀 Simpan Ke Jadwal"):
+            if 'Original_Index' in df_jadwal.columns:
+                df_jadwal = df_jadwal.drop(columns=["Original_Index"])
                 
-            pic_select_q = st.selectbox("PIC", LIST_PIC, key="q_pic")
-            if pic_select_q == "LAINNYA (Isi Manual)":
-                pic_q = st.text_input("Ketik Nama PIC Baru (Form Cepat):")
+            if pekerjaan_q.strip() == "":
+                st.error("Kolom pekerjaan harus diisi.")
+            elif area_select_q == "LAINNYA (Isi Manual)" and area_q.strip() == "":
+                st.error("Silakan isi nama area baru pada kolom teks.")
+            elif pic_select_q == "LAINNYA (Isi Manual)" and pic_q.strip() == "":
+                st.error("Silakan isi nama PIC baru pada kolom teks.")
             else:
-                pic_q = pic_select_q
-                
-            mp_q = st.number_input("Man Power", min_value=1, value=2)
-            
-            btn_q = st.form_submit_button("Simpan Ke Jadwal")
-            
-            if btn_q:
-                if 'Original_Index' in df_jadwal.columns:
-                    df_jadwal = df_jadwal.drop(columns=["Original_Index"])
-                    
-                if pekerjaan_q.strip() == "":
-                    st.error("Kolom pekerjaan harus diisi.")
-                elif area_select_q == "LAINNYA (Isi Manual)" and area_q.strip() == "":
-                    st.error("Silakan isi nama area baru pada kolom teks.")
-                elif pic_select_q == "LAINNYA (Isi Manual)" and pic_q.strip() == "":
-                    st.error("Silakan isi nama PIC baru pada kolom teks.")
-                else:
-                    new_row = {
-                        "Tanggal": tgl_q.strftime('%d/%m/%Y'),
-                        "Vendor": vendor_terpilih,
-                        "Pekerjaan": pekerjaan_q,
-                        "Area": area_q.strip().upper(),
-                        "Kebutuhan_Personil": int(mp_q),
-                        "PIC": pic_q.strip().upper()
-                    }
-                    df_jadwal = pd.concat([df_jadwal, pd.DataFrame([new_row])], ignore_index=True)
-                    save_data(df_jadwal)
-                    st.success("Jadwal Berhasil Ditambahkan!")
-                    st.rerun()
+                new_row = {
+                    "Tanggal": tgl_q.strftime('%d/%m/%Y'),
+                    "Vendor": vendor_terpilih,
+                    "Pekerjaan": pekerjaan_q,
+                    "Area": area_q.strip().upper(),
+                    "Kebutuhan_Personil": int(mp_q),
+                    "PIC": pic_q.strip().upper()
+                }
+                df_jadwal = pd.concat([df_jadwal, pd.DataFrame([new_row])], ignore_index=True)
+                save_data(df_jadwal)
+                st.success("Jadwal Berhasil Ditambahkan!")
+                st.rerun()
