@@ -137,7 +137,7 @@ if menu == "Input Form Jadwal":
         
         with col1:
             tgl_input = st.date_input("Tanggal Pekerjaan", datetime.now())
-            vendor_input = st.selectbox("Pilih Vendor", ["Tetuko", "Nata Mulya Abadi", "Tommy", "PRINTECH"])
+            vendor_input = st.selectbox("Pilih Vendor", ["Tetuko", "Nata Mulya Abadi", "Tommy", "PRINTECH", "LAINNYA (Isi Manual)"])
             pekerjaan_input = st.text_area("Deskripsi Pekerjaan / Temuan PM")
             
         with col2:
@@ -196,7 +196,7 @@ if menu == "Input Form Jadwal":
 elif menu == "Dashboard Tampilan Vendor":
     st.markdown("<h1 style='color: #4A3B32;'>🏪 Dashboard Penjadwalan Vendor</h1>", unsafe_allow_html=True)
     
-    vendor_terpilih = st.selectbox("Pilih Vendor yang Ingin Dilihat:", ["Tetuko", "Nata Mulya Abadi", "Tommy", "PRINTECH"])
+    vendor_terpilih = st.selectbox("Pilih Vendor yang Ingin Dilihat:", ["Tetuko", "Nata Mulya Abadi", "Tommy", "PRINTECH","LAINNYA (Isi Manual)"])
     
     st.markdown(f"<h2 style='text-align: center; background-color: #3B2F2F; color: #D2B48C; padding: 12px; border-radius: 5px; font-family: sans-serif; letter-spacing: 2px;'>SCHEDULE {vendor_terpilih.upper()}</h2>", unsafe_allow_html=True)
     
