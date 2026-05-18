@@ -43,6 +43,20 @@ st.markdown("""
             background-color: #3B2F2F;
             color: #D2B48C;
         }
+        
+        /* 6. MENGUBAH KOTAK INPUT MENJADI COKELAT MUDA */
+        div[data-baseweb="base-input"],
+        div[data-baseweb="select"] > div,
+        div[data-baseweb="textarea"] {
+            background-color: #EAD8C3 !important; /* Warna cokelat muda */
+            border: 1px solid #8B5A2B !important; /* Garis tepi cokelat agak gelap */
+            border-radius: 5px !important;
+        }
+        
+        /* Memastikan teks di dalam kotak input berwarna gelap agar mudah dibaca */
+        input, textarea, div[data-baseweb="select"] {
+            color: #3B2F2F !important; 
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -123,7 +137,7 @@ if st.sidebar.button("🗑️ Kosongkan Semua Data", type="primary"):
 if menu == "Input Form Jadwal":
     st.markdown("<h1 style='color: #4A3B32;'>📝 Form Input Penjadwalan Vendor</h1>", unsafe_allow_html=True)
     
-    # Grid Tata Letak Form Biasa (Polos tanpa kotak pembungkus)
+    # Grid Tata Letak Form Polos Biasa 
     col1, col2 = st.columns(2)
     
     with col1:
@@ -152,7 +166,7 @@ if menu == "Input Form Jadwal":
         else:
             pic_input = pic_select
 
-    # Tombol Simpan Jadwal Biasa
+    # Tombol Simpan Jadwal
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("💾 Simpan Jadwal"):
         if pekerjaan_input.strip() == "":
