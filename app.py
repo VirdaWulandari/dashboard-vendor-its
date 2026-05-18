@@ -75,11 +75,17 @@ st.markdown("""
 # File database sederhana berbasis CSV
 DATABASE_FILE = "jadwal_vendor.csv"
 
-# Fungsi untuk membaca data dari CSV
+# --- FUNGSI LOAD DATA (SUDAH DIPERBAIKI TOTAL) ---
 def load_data():
     try:
         df = pd.read_csv(DATABASE_FILE)
-        df['Tanggal'] = pd.to_datetime(df['Tanggal']).dt.strftime('%d/%m/%Y')
+        # Memaksa sistem membaca tanggal murni sebagai DD/MM/YYYY
+        df['Tanggal'] = pd.to_datetime(df['Tanggal'], format='%d/%m/%Y', errors='coerce').dt.strftime('%d/%m/%Y')
+        
+        # Membersihkan spasi tak kasat mata di awal/akhir dan memaksa Huruf Besar
+        df['Vendor'] = df['Vendor'].astype(str).str.strip().str.upper()
+        df['Area'] = df['Area'].astype(str).str.strip().str.upper()
+        df['PIC'] = df['PIC'].astype(str).str.strip().str.upper()
         return df
     except:
         return pd.DataFrame(columns=["Tanggal", "Vendor", "Pekerjaan", "Area", "Kebutuhan_Personil", "PIC"])
@@ -177,7 +183,6 @@ if menu == "Input Form Jadwal":
         else:
             pic_input = pic_select
 
-    # Tombol Simpan Jadwal
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("💾 Simpan Jadwal"):
         if pekerjaan_input.strip() == "":
@@ -207,7 +212,6 @@ if menu == "Input Form Jadwal":
             
     st.markdown("<br><h3 style='color: #4A3B32;'>📋 Semua Data Jadwal Tersimpan</h3>", unsafe_allow_html=True)
     
-    # KUNCI PERUBAHAN: Mewarnai Tabel dengan Pandas Styler
     styled_df = df_jadwal.style.set_properties(**{'background-color': '#EAD8C3', 'color': '#3B2F2F', 'border-color': '#8B5A2B'})
     st.dataframe(styled_df, use_container_width=True)
     
@@ -245,7 +249,6 @@ elif menu == "Dashboard Tampilan Vendor":
         tabel_tampil.columns = ["PEKERJAAN", "AREA", "PIC", "MAN POWER", "Original_Index"]
         tabel_tampil.insert(0, 'NO', range(1, 1 + len(tabel_tampil)))
         
-        # KUNCI PERUBAHAN: Mewarnai Tabel Filter dengan Pandas Styler
         df_tampil_bersih = tabel_tampil.set_index('NO').drop(columns=["Original_Index"])
         styled_tabel_tampil = df_tampil_bersih.style.set_properties(**{'background-color': '#EAD8C3', 'color': '#3B2F2F', 'border-color': '#8B5A2B'})
         st.dataframe(styled_tabel_tampil, use_container_width=True)
