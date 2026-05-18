@@ -5,7 +5,7 @@ from datetime import datetime
 # Konfigurasi Halaman Utama
 st.set_page_config(page_title="Dashboard Jadwal Vendor", layout="wide")
 
-# --- CUSTOM CSS UNTUK TEMA COKLAT KOPI & LATAR KREM (UPDATED) ---
+# --- CUSTOM CSS UNTUK TEMA COKLAT KOPI & LATAR KREM ---
 st.markdown("""
     <style>
         /* 1. Mengubah warna latar belakang halaman utama menjadi krem lembut */
@@ -74,7 +74,9 @@ def save_data(df):
 # Memuat data aktif
 df_jadwal = load_data()
 
-# --- DAFTAR AREA STANDAR ---
+# --- DAFTAR SELECTION STANDAR ---
+LIST_VENDOR = ["Tetuko", "Nata Mulya Abadi", "Tommy", "PRINTECH", "LAINNYA (Isi Manual)"]
+
 LIST_AREA = [
     "ALL", "ALL AREA", "ALL PLANT", "UNIVERSAL",
     "DEK BALKON", "DEK BARU", "DEK HITAM", "DEK KUNING", "DEK SELATAN",
@@ -92,7 +94,6 @@ LIST_AREA = [
     "LAINNYA (Isi Manual)"
 ]
 
-# --- DAFTAR PIC STANDAR ---
 LIST_PIC = [
     "ABDUL", "AKHMAD", "AMANDA", "ANDIK", "ANDRA", "ANDREW", "ANGGA", 
     "ARI", "ARI ISWORO", "ARIFIN", "ARRYAN", "AZRIEL", "BAMBANG", 
@@ -122,7 +123,7 @@ if st.sidebar.button("🗑️ Kosongkan Semua Data", type="primary"):
         df_kosong = pd.DataFrame(columns=["Tanggal", "Vendor", "Pekerjaan", "Area", "Kebutuhan_Personil", "PIC"])
         save_data(df_kosong)
         st.sidebar.success("Database berhasil dikosongkan!")
-        st.experimental_rerun()
+        st.rerun()
     else:
         st.sidebar.warning("Silakan centang kotak konfirmasi terlebih dahulu!")
 
@@ -137,10 +138,18 @@ if menu == "Input Form Jadwal":
         
         with col1:
             tgl_input = st.date_input("Tanggal Pekerjaan", datetime.now())
-            vendor_input = st.selectbox("Pilih Vendor", ["Tetuko", "Nata Mulya Abadi", "Tommy", "PRINTECH", "LAINNYA (Isi Manual)"])
+            
+            # Logika Dropdown Vendor + Input Teks Manual
+            vendor_select = st.selectbox("Pilih Vendor", LIST_VENDOR)
+            if vendor_select == "LAINNYA (Isi Manual)":
+                vendor_input = st.text_input("Ketik Nama Vendor Baru:", placeholder="Contoh: PT MAJU BERSAMA")
+            else:
+                vendor_input = vendor_select
+                
             pekerjaan_input = st.text_area("Deskripsi Pekerjaan / Temuan PM")
             
         with col2:
+            # Logika Dropdown Area + Input Teks Manual
             area_select = st.selectbox("Pilih Area Kerja", LIST_AREA)
             if area_select == "LAINNYA (Isi Manual)":
                 area_input = st.text_input("Ketik Nama Area Baru:", placeholder="Contoh: LINE K")
@@ -149,6 +158,7 @@ if menu == "Input Form Jadwal":
                 
             personil_input = st.number_input("Kebutuhan Personil / Man Power", min_value=1, value=2, step=1)
             
+            # Logika Dropdown PIC + Input Teks Manual
             pic_select = st.selectbox("Pilih PIC", LIST_PIC)
             if pic_select == "LAINNYA (Isi Manual)":
                 pic_input = st.text_input("Ketik Nama PIC Baru:", placeholder="Contoh: BUDI SUTEDJO")
@@ -160,6 +170,8 @@ if menu == "Input Form Jadwal":
     if submit_button:
         if pekerjaan_input.strip() == "":
             st.error("Gagal Menyimpan! Kolom 'Pekerjaan' wajib diisi.")
+        elif vendor_select == "LAINNYA (Isi Manual)" and vendor_input.strip() == "":
+            st.error("Gagal Menyimpan! Silakan isi nama vendor baru pada kolom teks.")
         elif area_select == "LAINNYA (Isi Manual)" and area_input.strip() == "":
             st.error("Gagal Menyimpan! Silakan isi nama area baru pada kolom teks.")
         elif pic_select == "LAINNYA (Isi Manual)" and pic_input.strip() == "":
@@ -169,7 +181,7 @@ if menu == "Input Form Jadwal":
             
             new_data = {
                 "Tanggal": tgl_formatted,
-                "Vendor": vendor_input,
+                "Vendor": vendor_input.strip().upper(),
                 "Pekerjaan": pekerjaan_input,
                 "Area": area_input.strip().upper(),
                 "Kebutuhan_Personil": int(personil_input),
@@ -196,7 +208,12 @@ if menu == "Input Form Jadwal":
 elif menu == "Dashboard Tampilan Vendor":
     st.markdown("<h1 style='color: #4A3B32;'>🏪 Dashboard Penjadwalan Vendor</h1>", unsafe_allow_html=True)
     
-    vendor_terpilih = st.selectbox("Pilih Vendor yang Ingin Dilihat:", ["Tetuko", "Nata Mulya Abadi", "Tommy", "PRINTECH","LAINNYA (Isi Manual)"])
+    daftar_vendor_aktif = sorted(list(df_jadwal['Vendor'].unique()))
+    for v in ["TETUKO", "NATA MULYA ABADI", "TOMMY", "PRINTECH"]:
+        if v not in daftar_vendor_aktif:
+            daftar_vendor_aktif.append(v)
+            
+    vendor_terpilih = st.selectbox("Pilih Vendor yang Ingin Dilihat:", daftar_vendor_aktif)
     
     st.markdown(f"<h2 style='text-align: center; background-color: #3B2F2F; color: #D2B48C; padding: 12px; border-radius: 5px; font-family: sans-serif; letter-spacing: 2px;'>SCHEDULE {vendor_terpilih.upper()}</h2>", unsafe_allow_html=True)
     
@@ -223,7 +240,7 @@ elif menu == "Dashboard Tampilan Vendor":
                 df_jadwal = df_jadwal.drop(index=idx_asli).drop(columns=["Original_Index"], errors='ignore')
                 save_data(df_jadwal)
                 st.success(f"Baris Nomor {no_hapus} berhasil dihapus!")
-                st.experimental_rerun()
+                st.rerun()
         
         st.markdown(" ")
         csv_filter = tabel_tampil.drop(columns=["NO", "Original_Index"]).to_csv(index=False).encode('utf-8')
@@ -282,4 +299,3 @@ elif menu == "Dashboard Tampilan Vendor":
                     save_data(df_jadwal)
                     st.success("Jadwal Berhasil Ditambahkan!")
                     st.rerun()
-                    
