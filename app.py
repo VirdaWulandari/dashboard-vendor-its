@@ -43,11 +43,6 @@ st.markdown("""
             background-color: #3B2F2F;
             color: #D2B48C;
         }
-        
-        /* 6. Mengubah border area input agar senada dengan tema kopi */
-        .block-container div.element-container {
-            font-family: sans-serif;
-        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -127,11 +122,8 @@ if st.sidebar.button("🗑️ Kosongkan Semua Data", type="primary"):
 # --- MENU 1: INPUT FORM JADWAL ---
 if menu == "Input Form Jadwal":
     st.markdown("<h1 style='color: #4A3B32;'>📝 Form Input Penjadwalan Vendor</h1>", unsafe_allow_html=True)
-    st.write("Gunakan form di bawah ini untuk menambahkan jadwal baru.")
     
-    # KUNCI PERBAIKAN: Input ditaruh di luar st.form agar bersifat interaktif dan dinamis
-    st.markdown("<div style='border: 2px solid #8B5A2B; border-radius: 10px; background-color: #FFFFFF; padding: 20px; box-shadow: 0px 4px 6px rgba(0,0,0,0.05);'>", unsafe_allow_html=True)
-    
+    # Grid Tata Letak Form Biasa (Polos tanpa kotak pembungkus)
     col1, col2 = st.columns(2)
     
     with col1:
@@ -160,7 +152,7 @@ if menu == "Input Form Jadwal":
         else:
             pic_input = pic_select
 
-    # Tombol simpan dibungkus sendiri agar aman dijalankan publik
+    # Tombol Simpan Jadwal Biasa
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("💾 Simpan Jadwal"):
         if pekerjaan_input.strip() == "":
@@ -187,8 +179,6 @@ if menu == "Input Form Jadwal":
             save_data(df_jadwal)
             st.success(f"Berhasil menambahkan jadwal untuk vendor {vendor_input.upper()}!")
             st.rerun()
-            
-    st.markdown("</div>", unsafe_allow_html=True)
             
     st.markdown("<br><h3 style='color: #4A3B32;'>📋 Semua Data Jadwal Tersimpan</h3>", unsafe_allow_html=True)
     st.dataframe(df_jadwal, use_container_width=True)
@@ -253,7 +243,6 @@ elif menu == "Dashboard Tampilan Vendor":
     st.markdown("---")
     st.markdown(f"<h3 style='color: #4A3B32;'>➕ Tambah Jadwal Cepat untuk {vendor_terpilih}</h3>", unsafe_allow_html=True)
     with st.expander("Klik di sini untuk mengisi hari libur / jadwal kosong minggu ini"):
-        # Di input cepat juga kita keluarkan dari form kaku agar kolom barunya bisa meluncur aktif
         tgl_q = st.date_input("Tanggal", tgl_filter)
         pekerjaan_q = st.text_input("Pekerjaan", placeholder="Contoh: SH1: FOLLOW UP TEMUAN PM...")
         
