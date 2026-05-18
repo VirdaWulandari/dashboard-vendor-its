@@ -48,14 +48,26 @@ st.markdown("""
         div[data-baseweb="base-input"],
         div[data-baseweb="select"] > div,
         div[data-baseweb="textarea"] {
-            background-color: #EAD8C3 !important; /* Warna cokelat muda */
-            border: 1px solid #8B5A2B !important; /* Garis tepi cokelat agak gelap */
+            background-color: #EAD8C3 !important;
+            border: 1px solid #8B5A2B !important;
             border-radius: 5px !important;
         }
         
-        /* Memastikan teks di dalam kotak input berwarna gelap agar mudah dibaca */
         input, textarea, div[data-baseweb="select"] {
             color: #3B2F2F !important; 
+        }
+
+        /* 7. MENGUBAH TOMBOL DOWNLOAD / EXPORT */
+        [data-testid="stDownloadButton"] button {
+            background-color: #EAD8C3 !important;
+            color: #3B2F2F !important;
+            border: 1px solid #8B5A2B !important;
+            border-radius: 5px !important;
+            font-weight: bold;
+        }
+        [data-testid="stDownloadButton"] button:hover {
+            background-color: #D2B48C !important;
+            border-color: #5C4033 !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -137,7 +149,6 @@ if st.sidebar.button("🗑️ Kosongkan Semua Data", type="primary"):
 if menu == "Input Form Jadwal":
     st.markdown("<h1 style='color: #4A3B32;'>📝 Form Input Penjadwalan Vendor</h1>", unsafe_allow_html=True)
     
-    # Grid Tata Letak Form Polos Biasa 
     col1, col2 = st.columns(2)
     
     with col1:
@@ -195,7 +206,10 @@ if menu == "Input Form Jadwal":
             st.rerun()
             
     st.markdown("<br><h3 style='color: #4A3B32;'>📋 Semua Data Jadwal Tersimpan</h3>", unsafe_allow_html=True)
-    st.dataframe(df_jadwal, use_container_width=True)
+    
+    # KUNCI PERUBAHAN: Mewarnai Tabel dengan Pandas Styler
+    styled_df = df_jadwal.style.set_properties(**{'background-color': '#EAD8C3', 'color': '#3B2F2F', 'border-color': '#8B5A2B'})
+    st.dataframe(styled_df, use_container_width=True)
     
     csv_data = df_jadwal.to_csv(index=False).encode('utf-8')
     st.download_button(
@@ -231,7 +245,10 @@ elif menu == "Dashboard Tampilan Vendor":
         tabel_tampil.columns = ["PEKERJAAN", "AREA", "PIC", "MAN POWER", "Original_Index"]
         tabel_tampil.insert(0, 'NO', range(1, 1 + len(tabel_tampil)))
         
-        st.dataframe(tabel_tampil.set_index('NO').drop(columns=["Original_Index"]), use_container_width=True)
+        # KUNCI PERUBAHAN: Mewarnai Tabel Filter dengan Pandas Styler
+        df_tampil_bersih = tabel_tampil.set_index('NO').drop(columns=["Original_Index"])
+        styled_tabel_tampil = df_tampil_bersih.style.set_properties(**{'background-color': '#EAD8C3', 'color': '#3B2F2F', 'border-color': '#8B5A2B'})
+        st.dataframe(styled_tabel_tampil, use_container_width=True)
         
         col_dl1, col_dl2 = st.columns([1, 2])
         with col_dl1:
