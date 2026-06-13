@@ -250,6 +250,16 @@ elif menu == "Dashboard Tampilan Vendor":
         tabel_tampil.insert(0, 'NO', range(1, 1 + len(tabel_tampil)))
         
         df_tampil_bersih = tabel_tampil.set_index('NO').drop(columns=["Original_Index"])
+        
+        # --- FITUR BARU: TOTAL MAN POWER ---
+        # 1. Mengubah indeks kolom NO menjadi string agar bisa menampung teks "TOTAL"
+        df_tampil_bersih.index = df_tampil_bersih.index.astype(str)
+        # 2. Menjumlahkan keseluruhan angka pada kolom MAN POWER
+        total_mp = df_tampil_bersih["MAN POWER"].sum()
+        # 3. Menyisipkan baris paling bawah untuk menampilkan Total
+        df_tampil_bersih.loc['TOTAL'] = ["", "", "TOTAL MAN POWER :", total_mp]
+        
+        # Menerapkan warna tabel
         styled_tabel_tampil = df_tampil_bersih.style.set_properties(**{'background-color': '#EAD8C3', 'color': '#3B2F2F', 'border-color': '#8B5A2B'})
         st.dataframe(styled_tabel_tampil, use_container_width=True)
         
