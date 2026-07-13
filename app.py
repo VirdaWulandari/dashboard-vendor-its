@@ -73,11 +73,9 @@ def load_data():
     except:
         return pd.DataFrame(columns=["Tanggal", "Vendor", "Pekerjaan", "Area", "Kebutuhan_Personil", "PIC"])
 
-# Fungsi untuk menyimpan data ke CSV
 def save_data(df):
     df.to_csv(DATABASE_FILE, index=False)
 
-# Memuat data aktif
 df_jadwal = load_data()
 
 # --- DAFTAR SELECTION STANDAR ---
@@ -87,13 +85,12 @@ LIST_PIC = ["ABDUL", "AKHMAD", "AMANDA", "ANDIK", "ANDRA", "ANDREW", "ANGGA", "A
 
 # --- NAVIGASI SIDEBAR ---
 st.sidebar.markdown("<h2 style='color: #F5F5DC;'>☕ MENU UTAMA</h2>", unsafe_allow_html=True)
-menu = st.sidebar.radio("Pilih Tampilan:", ["Input Form Jadwal", "Dashboard Tampilan Vendor"])
+menu = st.sidebar.radio("Pilih Tampilan:", ["Input Form Jadwal", "Dashboard Tampilan Vendor"], key="main_menu")
 
-# --- FITUR GLOBAL: CLEAR DATA ALL DATABASE ---
 st.sidebar.markdown("---")
 st.sidebar.subheader("⚙️ Reset Database")
-confirm_clear = st.sidebar.checkbox("Saya yakin ingin menghapus SEMUA data")
-if st.sidebar.button("🗑️ Kosongkan Semua Data", type="primary"):
+confirm_clear = st.sidebar.checkbox("Saya yakin ingin menghapus SEMUA data", key="chk_clear")
+if st.sidebar.button("🗑️ Kosongkan Semua Data", key="btn_clear", type="primary"):
     if confirm_clear:
         df_kosong = pd.DataFrame(columns=["Tanggal", "Vendor", "Pekerjaan", "Area", "Kebutuhan_Personil", "PIC"])
         save_data(df_kosong)
@@ -109,29 +106,29 @@ if menu == "Input Form Jadwal":
     col1, col2 = st.columns(2)
     
     with col1:
-        tgl_input = st.date_input("Tanggal Pekerjaan", datetime.now())
-        vendor_select = st.selectbox("Pilih Vendor", LIST_VENDOR)
+        tgl_input = st.date_input("Tanggal Pekerjaan", datetime.now(), key="in_tgl")
+        vendor_select = st.selectbox("Pilih Vendor", LIST_VENDOR, key="in_ven_sel")
         if vendor_select == "LAINNYA (Isi Manual)":
-            vendor_input = st.text_input("✍️ Ketik Nama Vendor Baru di Sini:")
+            vendor_input = st.text_input("✍️ Ketik Nama Vendor Baru di Sini:", key="in_ven_txt")
         else:
             vendor_input = vendor_select
-        pekerjaan_input = st.text_area("Deskripsi Pekerjaan / Temuan PM")
+        pekerjaan_input = st.text_area("Deskripsi Pekerjaan / Temuan PM", key="in_pek")
         
     with col2:
-        area_select = st.selectbox("Pilih Area Kerja", LIST_AREA)
+        area_select = st.selectbox("Pilih Area Kerja", LIST_AREA, key="in_area_sel")
         if area_select == "LAINNYA (Isi Manual)":
-            area_input = st.text_input("✍️ Ketik Nama Area Baru di Sini:")
+            area_input = st.text_input("✍️ Ketik Nama Area Baru di Sini:", key="in_area_txt")
         else:
             area_input = area_select
-        personil_input = st.number_input("Kebutuhan Personil / Man Power", min_value=1, value=2, step=1)
-        pic_select = st.selectbox("Pilih PIC", LIST_PIC)
+        personil_input = st.number_input("Kebutuhan Personil / Man Power", min_value=1, value=2, step=1, key="in_mp")
+        pic_select = st.selectbox("Pilih PIC", LIST_PIC, key="in_pic_sel")
         if pic_select == "LAINNYA (Isi Manual)":
-            pic_input = st.text_input("✍️ Ketik Nama PIC Baru di Sini:")
+            pic_input = st.text_input("✍️ Ketik Nama PIC Baru di Sini:", key="in_pic_txt")
         else:
             pic_input = pic_select
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("💾 Simpan Jadwal"):
+    st.write("") # Pengganti raw HTML <br> untuk keamanan render
+    if st.button("💾 Simpan Jadwal", key="btn_simpan_utama"):
         if pekerjaan_input.strip() == "":
             st.error("Gagal Menyimpan! Kolom 'Pekerjaan' wajib diisi.")
         elif vendor_select == "LAINNYA (Isi Manual)" and vendor_input.strip() == "":
@@ -155,7 +152,8 @@ if menu == "Input Form Jadwal":
             st.success(f"Berhasil menambahkan jadwal untuk vendor {vendor_input.upper()}!")
             st.rerun()
             
-    st.markdown("<br><h3 style='color: #4A3B32;'>📋 Semua Data Jadwal Tersimpan</h3>", unsafe_allow_html=True)
+    st.write("")
+    st.markdown("<h3 style='color: #4A3B32;'>📋 Semua Data Jadwal Tersimpan</h3>", unsafe_allow_html=True)
     st.dataframe(df_jadwal, use_container_width=True)
     
     csv_data = df_jadwal.to_csv(index=False).encode('utf-8')
@@ -163,7 +161,8 @@ if menu == "Input Form Jadwal":
         label="📥 Export Database ke CSV (Bisa dibuka di Excel)",
         data=csv_data,
         file_name=f"database_jadwal_all_{datetime.now().strftime('%Y%m%d')}.csv",
-        mime="text/csv"
+        mime="text/csv",
+        key="btn_dl_all"
     )
 
 # --- MENU 2: DASHBOARD TAMPILAN PER VENDOR ---
@@ -175,13 +174,13 @@ elif menu == "Dashboard Tampilan Vendor":
         if v not in daftar_vendor_aktif:
             daftar_vendor_aktif.append(v)
             
-    vendor_terpilih = st.selectbox("Pilih Vendor yang Ingin Dilihat:", daftar_vendor_aktif)
+    vendor_terpilih = st.selectbox("Pilih Vendor yang Ingin Dilihat:", daftar_vendor_aktif, key="dash_ven_sel")
     
     st.markdown(f"<h2 style='text-align: center; background-color: #3B2F2F; color: #D2B48C; padding: 12px; border-radius: 5px; font-family: sans-serif; letter-spacing: 2px;'>SCHEDULE {vendor_terpilih.upper()}</h2>", unsafe_allow_html=True)
     
     col_tgl, _ = st.columns([1, 2])
     with col_tgl:
-        tgl_filter = st.date_input("MASUKKAN TANGGAL :", datetime.now())
+        tgl_filter = st.date_input("MASUKKAN TANGGAL :", datetime.now(), key="dash_tgl")
         tgl_filter_str = tgl_filter.strftime('%d/%m/%Y')
         
     df_jadwal['Original_Index'] = df_jadwal.index
@@ -194,56 +193,59 @@ elif menu == "Dashboard Tampilan Vendor":
         
         df_tampil_bersih = tabel_tampil.set_index('NO').drop(columns=["Original_Index"])
         
-        # 1. TAMPILKAN TABEL MURNI (Dijamin tidak akan error)
         st.dataframe(df_tampil_bersih, use_container_width=True)
         
-        # 2. HITUNG DAN TAMPILKAN TOTAL DI LUAR TABEL (Lebih elegan dan 100% aman)
         total_mp = int(df_tampil_bersih["MAN POWER"].sum())
         st.info(f"📊 **TOTAL KEBUTUHAN MAN POWER : {total_mp} ORANG**")
         
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.write("")
         col_dl1, col_dl2 = st.columns([1, 2])
         with col_dl1:
-            no_hapus = st.selectbox("Pilih NO baris yang ingin dihapus:", tabel_tampil['NO'].tolist())
-            if st.button("❌ Hapus Baris Terpilih"):
+            # PENTING: Key dinamis untuk memaksa pembaharuan elemen tanpa merusak sistem
+            dinamik_id = f"{vendor_terpilih}_{tgl_filter_str}"
+            
+            no_hapus = st.selectbox("Pilih NO baris yang ingin dihapus:", tabel_tampil['NO'].tolist(), key=f"sel_hapus_{dinamik_id}")
+            if st.button("❌ Hapus Baris Terpilih", key=f"btn_hapus_{dinamik_id}"):
                 idx_asli = tabel_tampil[tabel_tampil['NO'] == no_hapus]['Original_Index'].values[0]
                 df_jadwal = df_jadwal.drop(index=idx_asli).drop(columns=["Original_Index"], errors='ignore')
                 save_data(df_jadwal)
                 st.success(f"Baris Nomor {no_hapus} berhasil dihapus!")
                 st.rerun()
         
-        st.markdown(" ")
+        st.write("")
         csv_filter = tabel_tampil.drop(columns=["NO", "Original_Index"]).to_csv(index=False).encode('utf-8')
         st.download_button(
             label=f"📥 Download Jadwal {vendor_terpilih} Tanggal {tgl_filter_str}",
             data=csv_filter,
             file_name=f"Jadwal_{vendor_terpilih}_{tgl_filter_str.replace('/', '-')}.csv",
-            mime="text/csv"
+            mime="text/csv",
+            key=f"dl_{dinamik_id}"
         )
     else:
         st.info(f"Tidak ada jadwal untuk {vendor_terpilih} pada tanggal {tgl_filter_str}. (Hari Libur / Kosong)")
         
-    st.markdown("---")
+    st.write("---")
     st.markdown(f"<h3 style='color: #4A3B32;'>➕ Tambah Jadwal Cepat untuk {vendor_terpilih}</h3>", unsafe_allow_html=True)
     with st.expander("Klik di sini untuk mengisi hari libur / jadwal kosong minggu ini"):
-        tgl_q = st.date_input("Tanggal", tgl_filter)
-        pekerjaan_q = st.text_input("Pekerjaan", placeholder="Contoh: SH1: FOLLOW UP TEMUAN PM...")
         
-        area_select_q = st.selectbox("Area", LIST_AREA, key="q_area")
+        tgl_q = st.date_input("Tanggal", tgl_filter, key=f"q_tgl_{vendor_terpilih}")
+        pekerjaan_q = st.text_input("Pekerjaan", placeholder="Contoh: SH1: FOLLOW UP TEMUAN PM...", key=f"q_pek_{vendor_terpilih}")
+        
+        area_select_q = st.selectbox("Area", LIST_AREA, key=f"q_area_sel_{vendor_terpilih}")
         if area_select_q == "LAINNYA (Isi Manual)":
-            area_q = st.text_input("✍️ Ketik Nama Area Baru (Form Cepat):")
+            area_q = st.text_input("✍️ Ketik Nama Area Baru (Form Cepat):", key=f"q_area_txt_{vendor_terpilih}")
         else:
             area_q = area_select_q
             
-        pic_select_q = st.selectbox("PIC", LIST_PIC, key="q_pic")
+        pic_select_q = st.selectbox("PIC", LIST_PIC, key=f"q_pic_sel_{vendor_terpilih}")
         if pic_select_q == "LAINNYA (Isi Manual)":
-            pic_q = st.text_input("✍️ Ketik Nama PIC Baru (Form Cepat):")
+            pic_q = st.text_input("✍️ Ketik Nama PIC Baru (Form Cepat):", key=f"q_pic_txt_{vendor_terpilih}")
         else:
             pic_q = pic_select_q
             
-        mp_q = st.number_input("Man Power", min_value=1, value=2)
+        mp_q = st.number_input("Man Power", min_value=1, value=2, key=f"q_mp_{vendor_terpilih}")
         
-        if st.button("🚀 Simpan Ke Jadwal"):
+        if st.button("🚀 Simpan Ke Jadwal", key=f"q_btn_{vendor_terpilih}"):
             if 'Original_Index' in df_jadwal.columns:
                 df_jadwal = df_jadwal.drop(columns=["Original_Index"])
                 
