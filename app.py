@@ -8,12 +8,17 @@ st.set_page_config(page_title="Dashboard Jadwal Vendor", layout="wide")
 # --- CUSTOM CSS UNTUK TEMA COKLAT KOPI & LATAR KREM ---
 st.markdown("""
     <style>
+        /* 1. Mengubah warna latar belakang halaman utama menjadi krem lembut */
         .stApp {
             background-color: #FDFBF7 !important;
         }
+        
+        /* 2. Mengubah warna latar belakang sidebar */
         [data-testid="stSidebar"] {
             background-color: #4A3B32 !important;
         }
+        
+        /* 3. FORCE TOTAL WARNA FONT SIDEBAR agar menyala terang */
         [data-testid="stSidebar"] *, 
         [data-testid="stSidebar"] div, 
         [data-testid="stSidebar"] p, 
@@ -21,9 +26,13 @@ st.markdown("""
         [data-testid="stSidebar"] span {
             color: #F5F5DC !important;
         }
+        
+        /* 4. Menjaga agar tombol hapus di sidebar teksnya tetap putih/terang */
         [data-testid="stSidebar"] button * {
             color: #ffffff !important;
         }
+        
+        /* 5. Mengubah warna tombol utama (Primary Button) */
         div.stButton > button:first-child {
             background-color: #5C4033;
             color: white;
@@ -34,6 +43,8 @@ st.markdown("""
             background-color: #3B2F2F;
             color: #D2B48C;
         }
+        
+        /* 6. MENGUBAH KOTAK INPUT MENJADI COKELAT MUDA */
         div[data-baseweb="base-input"],
         div[data-baseweb="select"] > div,
         div[data-baseweb="textarea"] {
@@ -41,9 +52,12 @@ st.markdown("""
             border: 1px solid #8B5A2B !important;
             border-radius: 5px !important;
         }
+        
         input, textarea, div[data-baseweb="select"] {
             color: #3B2F2F !important; 
         }
+
+        /* 7. MENGUBAH TOMBOL DOWNLOAD / EXPORT */
         [data-testid="stDownloadButton"] button {
             background-color: #EAD8C3 !important;
             color: #3B2F2F !important;
@@ -61,7 +75,7 @@ st.markdown("""
 # File database sederhana berbasis CSV
 DATABASE_FILE = "jadwal_vendor.csv"
 
-# --- FUNGSI LOAD DATA (SUDAH DIPERBAIKI TOTAL) ---
+# --- FUNGSI LOAD DATA ---
 def load_data():
     try:
         df = pd.read_csv(DATABASE_FILE)
@@ -90,7 +104,7 @@ LIST_PIC = ["ABDUL", "AKHMAD", "AMANDA", "ANDIK", "ANDRA", "ANDREW", "ANGGA", "A
 st.sidebar.markdown("<h2 style='color: #F5F5DC;'>☕ MENU UTAMA</h2>", unsafe_allow_html=True)
 menu = st.sidebar.radio("Pilih Tampilan:", ["Input Form Jadwal", "Dashboard Tampilan Vendor"])
 
-# --- FITUR GLOBAL: CLEAR DATA ALL DATABASE (SIDEBAR) ---
+# --- FITUR GLOBAL: CLEAR DATA ALL DATABASE ---
 st.sidebar.markdown("---")
 st.sidebar.subheader("⚙️ Reset Database")
 confirm_clear = st.sidebar.checkbox("Saya yakin ingin menghapus SEMUA data")
@@ -157,8 +171,7 @@ if menu == "Input Form Jadwal":
             st.rerun()
             
     st.markdown("<br><h3 style='color: #4A3B32;'>📋 Semua Data Jadwal Tersimpan</h3>", unsafe_allow_html=True)
-    styled_df = df_jadwal.style.set_properties(**{'background-color': '#EAD8C3', 'color': '#3B2F2F', 'border-color': '#8B5A2B'})
-    st.dataframe(styled_df, use_container_width=True)
+    st.dataframe(df_jadwal, use_container_width=True)
     
     csv_data = df_jadwal.to_csv(index=False).encode('utf-8')
     st.download_button(
@@ -196,12 +209,15 @@ elif menu == "Dashboard Tampilan Vendor":
         
         df_tampil_bersih = tabel_tampil.set_index('NO').drop(columns=["Original_Index"])
         
-        df_tampil_bersih.index = df_tampil_bersih.index.astype(str)
-        total_mp = df_tampil_bersih["MAN POWER"].sum()
-        df_tampil_bersih.loc['TOTAL'] = ["", "", "TOTAL MAN POWER :", total_mp]
+        # --- PERBAIKAN TOTAL: HITUNG TOTAL MAN POWER SECARA AMAN ---
+        total_mp = int(df_tampil_bersih["MAN POWER"].sum())
         
-        styled_tabel_tampil = df_tampil_bersih.style.set_properties(**{'background-color': '#EAD8C3', 'color': '#3B2F2F', 'border-color': '#8B5A2B'})
-        st.dataframe(styled_tabel_tampil, use_container_width=True)
+        # Konversi data ke tipe string agar struktur tabel seragam di browser
+        df_tampil_bersih = df_tampil_bersih.astype(str)
+        df_tampil_bersih.loc['TOTAL'] = ["", "", "TOTAL MAN POWER :", str(total_mp)]
+        
+        # Tampilkan menggunakan komponen dataframe bawaan agar terhindar dari bug 'removeChild'
+        st.dataframe(df_tampil_bersih, use_container_width=True)
         
         col_dl1, col_dl2 = st.columns([1, 2])
         with col_dl1:
