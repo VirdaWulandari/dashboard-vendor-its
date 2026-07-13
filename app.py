@@ -8,12 +8,17 @@ st.set_page_config(page_title="Dashboard Jadwal Vendor", layout="wide")
 # --- CUSTOM CSS UNTUK TEMA COKLAT KOPI & LATAR KREM ---
 st.markdown("""
     <style>
+        /* 1. Mengubah warna latar belakang halaman utama menjadi krem lembut */
         .stApp {
             background-color: #FDFBF7 !important;
         }
+        
+        /* 2. Mengubah warna latar belakang sidebar */
         [data-testid="stSidebar"] {
             background-color: #4A3B32 !important;
         }
+        
+        /* 3. FORCE TOTAL WARNA FONT SIDEBAR agar menyala terang */
         [data-testid="stSidebar"] *, 
         [data-testid="stSidebar"] div, 
         [data-testid="stSidebar"] p, 
@@ -21,9 +26,13 @@ st.markdown("""
         [data-testid="stSidebar"] span {
             color: #F5F5DC !important;
         }
+        
+        /* 4. Menjaga agar tombol hapus di sidebar teksnya tetap putih/terang */
         [data-testid="stSidebar"] button * {
             color: #ffffff !important;
         }
+        
+        /* 5. Mengubah warna tombol utama (Primary Button) */
         div.stButton > button:first-child {
             background-color: #5C4033;
             color: white;
@@ -34,6 +43,8 @@ st.markdown("""
             background-color: #3B2F2F;
             color: #D2B48C;
         }
+        
+        /* 6. MENGUBAH KOTAK INPUT MENJADI COKELAT MUDA */
         div[data-baseweb="base-input"],
         div[data-baseweb="select"] > div,
         div[data-baseweb="textarea"] {
@@ -41,9 +52,12 @@ st.markdown("""
             border: 1px solid #8B5A2B !important;
             border-radius: 5px !important;
         }
+        
         input, textarea, div[data-baseweb="select"] {
             color: #3B2F2F !important; 
         }
+
+        /* 7. MENGUBAH TOMBOL DOWNLOAD / EXPORT */
         [data-testid="stDownloadButton"] button {
             background-color: #EAD8C3 !important;
             color: #3B2F2F !important;
@@ -156,8 +170,7 @@ if menu == "Input Form Jadwal":
             st.rerun()
             
     st.markdown("<br><h3 style='color: #4A3B32;'>📋 Semua Data Jadwal Tersimpan</h3>", unsafe_allow_html=True)
-    # Perbaikan: Menghapus Pandas Styler dan menggunakan format width='stretch'
-    st.dataframe(df_jadwal, width='stretch')
+    st.dataframe(df_jadwal, use_container_width=True)
     
     csv_data = df_jadwal.to_csv(index=False).encode('utf-8')
     st.download_button(
@@ -195,12 +208,14 @@ elif menu == "Dashboard Tampilan Vendor":
         
         df_tampil_bersih = tabel_tampil.set_index('NO').drop(columns=["Original_Index"])
         
-        total_mp = int(df_tampil_bersih["MAN POWER"].sum())
-        df_tampil_bersih = df_tampil_bersih.astype(str)
-        df_tampil_bersih.loc['TOTAL'] = ["", "", "TOTAL MAN POWER :", str(total_mp)]
+        # 1. Tampilkan tabel data asli dengan aman (Bebas dari bug removeChild)
+        st.dataframe(df_tampil_bersih, use_container_width=True)
         
-        # Perbaikan: Menghapus Pandas Styler dan menggunakan format width='stretch'
-        st.dataframe(df_tampil_bersih, width='stretch')
+        # 2. Menghitung total man power secara realtime
+        total_mp = int(df_tampil_bersih["MAN POWER"].astype(int).sum())
+        
+        # 3. MENAMPILKAN TOTAL MENGGUNAKAN WIDGET METRIC (Sangat Estetik & Aman)
+        st.metric(label="📊 TOTAL MAN POWER YANG BERTUGAS", value=f"{total_mp} Orang")
         
         col_dl1, col_dl2 = st.columns([1, 2])
         with col_dl1:
