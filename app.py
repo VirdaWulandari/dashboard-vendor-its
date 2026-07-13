@@ -8,17 +8,12 @@ st.set_page_config(page_title="Dashboard Jadwal Vendor", layout="wide")
 # --- CUSTOM CSS UNTUK TEMA COKLAT KOPI & LATAR KREM ---
 st.markdown("""
     <style>
-        /* 1. Mengubah warna latar belakang halaman utama menjadi krem lembut */
         .stApp {
             background-color: #FDFBF7 !important;
         }
-        
-        /* 2. Mengubah warna latar belakang sidebar */
         [data-testid="stSidebar"] {
             background-color: #4A3B32 !important;
         }
-        
-        /* 3. FORCE TOTAL WARNA FONT SIDEBAR agar menyala terang */
         [data-testid="stSidebar"] *, 
         [data-testid="stSidebar"] div, 
         [data-testid="stSidebar"] p, 
@@ -26,13 +21,9 @@ st.markdown("""
         [data-testid="stSidebar"] span {
             color: #F5F5DC !important;
         }
-        
-        /* 4. Menjaga agar tombol hapus di sidebar teksnya tetap putih/terang */
         [data-testid="stSidebar"] button * {
             color: #ffffff !important;
         }
-        
-        /* 5. Mengubah warna tombol utama (Primary Button) */
         div.stButton > button:first-child {
             background-color: #5C4033;
             color: white;
@@ -43,8 +34,6 @@ st.markdown("""
             background-color: #3B2F2F;
             color: #D2B48C;
         }
-        
-        /* 6. MENGUBAH KOTAK INPUT MENJADI COKELAT MUDA */
         div[data-baseweb="base-input"],
         div[data-baseweb="select"] > div,
         div[data-baseweb="textarea"] {
@@ -52,12 +41,9 @@ st.markdown("""
             border: 1px solid #8B5A2B !important;
             border-radius: 5px !important;
         }
-        
         input, textarea, div[data-baseweb="select"] {
             color: #3B2F2F !important; 
         }
-
-        /* 7. MENGUBAH TOMBOL DOWNLOAD / EXPORT */
         [data-testid="stDownloadButton"] button {
             background-color: #EAD8C3 !important;
             color: #3B2F2F !important;
@@ -79,10 +65,8 @@ DATABASE_FILE = "jadwal_vendor.csv"
 def load_data():
     try:
         df = pd.read_csv(DATABASE_FILE)
-        # Memaksa sistem membaca tanggal murni sebagai DD/MM/YYYY
         df['Tanggal'] = pd.to_datetime(df['Tanggal'], format='%d/%m/%Y', errors='coerce').dt.strftime('%d/%m/%Y')
         
-        # Membersihkan spasi tak kasat mata di awal/akhir dan memaksa Huruf Besar
         df['Vendor'] = df['Vendor'].astype(str).str.strip().str.upper()
         df['Area'] = df['Area'].astype(str).str.strip().str.upper()
         df['PIC'] = df['PIC'].astype(str).str.strip().str.upper()
@@ -99,39 +83,8 @@ df_jadwal = load_data()
 
 # --- DAFTAR SELECTION STANDAR ---
 LIST_VENDOR = ["Tetuko", "Nata Mulya Abadi", "Tommy", "PRINTECH", "LAINNYA (Isi Manual)"]
-
-LIST_AREA = [
-    "ALL", "ALL AREA", "ALL PLANT", "UNIVERSAL",
-    "DEK BALKON", "DEK BARU", "DEK HITAM", "DEK KUNING", "DEK SELATAN",
-    "GBJ", "SURAMADU", 
-    "PRO 1", "PRO 2", "PRO 1 & 2", "UPBM PRO 1", "UPBM PRO 2", "UPBM1",
-    "LINE A", "LINE A1", "LINE A2", 
-    "LINE B", "LINE B6", 
-    "LINE C", "LINE C2", 
-    "LINE D", "LINE E", 
-    "GSI LINE F", "LINE F", "LINE F1", "LINE F3", "LINE F5", 
-    "LINE G", "LINE H", "LINE I", "LINE I4", "LINE J",
-    "LINE MANUAL", "LINE REGULER", "LINE UNIVERSAL",
-    "LINE A, B, C, D & REGULER", "LINE AB REG", "LINE C & D", "LINE CD",
-    "MADHAND", "(BLANK)",
-    "LAINNYA (Isi Manual)"
-]
-
-LIST_PIC = [
-    "ABDUL", "AKHMAD", "AMANDA", "ANDIK", "ANDRA", "ANDREW", "ANGGA", 
-    "ARI", "ARI ISWORO", "ARIFIN", "ARRYAN", "AZRIEL", "BAMBANG", 
-    "CHANAFI", "DIAS", "DWI RIZKI", "EGAR", "EKO", "FADLY", "FAJAR", 
-    "FANDI", "FARID", "FERDIAN", "FERDIANSYAH", "GUFRON", "HARDA", 
-    "HENGKY", "IAN", "IBNU", "ILHAM", "IMAM", "IRCHAM", "JIMMY", 
-    "KHOIRUL ANAM", "MAKSUM", "MUHAJIR", "ORI", "PRAS", "PRIHADIANTO", 
-    "PRODUKSI", "RAHMAT", "REDY", "RENDI", "RIZKY AFFANDI W.", 
-    "SANCA", "SATRIO", "SLAMET", "SUPARDIYANTO", "SUPRIYADI", "SYAFI'I", 
-    "TEGUH", "TRI SUTRISNO", "TRI SUTRISNO WAHYUDI", "TRISBIYANTO", 
-    "VIANTO", "YULI",
-    "FADLY & ANDRE", "IBNU, SYAFII & MAKSUM", "MUSTOFA & TRISBIYANTO", 
-    "RAHMAT & IRCHAM", "VIANTO & YULI", "-",
-    "LAINNYA (Isi Manual)"
-]
+LIST_AREA = ["ALL", "ALL AREA", "ALL PLANT", "UNIVERSAL", "DEK BALKON", "DEK BARU", "DEK HITAM", "DEK KUNING", "DEK SELATAN", "GBJ", "SURAMADU", "PRO 1", "PRO 2", "PRO 1 & 2", "UPBM PRO 1", "UPBM PRO 2", "UPBM1", "LINE A", "LINE A1", "LINE A2", "LINE B", "LINE B6", "LINE C", "LINE C2", "LINE D", "LINE E", "GSI LINE F", "LINE F", "LINE F1", "LINE F3", "LINE F5", "LINE G", "LINE H", "LINE I", "LINE I4", "LINE J", "LINE MANUAL", "LINE REGULER", "LINE UNIVERSAL", "LINE A, B, C, D & REGULER", "LINE AB REG", "LINE C & D", "LINE CD", "MADHAND", "(BLANK)", "LAINNYA (Isi Manual)"]
+LIST_PIC = ["ABDUL", "AKHMAD", "AMANDA", "ANDIK", "ANDRA", "ANDREW", "ANGGA", "ARI", "ARI ISWORO", "ARIFIN", "ARRYAN", "AZRIEL", "BAMBANG", "CHANAFI", "DIAS", "DWI RIZKI", "EGAR", "EKO", "FADLY", "FAJAR", "FANDI", "FARID", "FERDIAN", "FERDIANSYAH", "GUFRON", "HARDA", "HENGKY", "IAN", "IBNU", "ILHAM", "IMAM", "IRCHAM", "JIMMY", "KHOIRUL ANAM", "MAKSUM", "MUHAJIR", "ORI", "PRAS", "PRIHADIANTO", "PRODUKSI", "RAHMAT", "REDY", "RENDI", "RIZKY AFFANDI W.", "SANCA", "SATRIO", "SLAMET", "SUPARDIYANTO", "SUPRIYADI", "SYAFI'I", "TEGUH", "TRI SUTRISNO", "TRI SUTRISNO WAHYUDI", "TRISBIYANTO", "VIANTO", "YULI", "FADLY & ANDRE", "IBNU, SYAFII & MAKSUM", "MUSTOFA & TRISBIYANTO", "RAHMAT & IRCHAM", "VIANTO & YULI", "-", "LAINNYA (Isi Manual)"]
 
 # --- NAVIGASI SIDEBAR ---
 st.sidebar.markdown("<h2 style='color: #F5F5DC;'>☕ MENU UTAMA</h2>", unsafe_allow_html=True)
@@ -150,7 +103,6 @@ if st.sidebar.button("🗑️ Kosongkan Semua Data", type="primary"):
     else:
         st.sidebar.warning("Silakan centang kotak konfirmasi terlebih dahulu!")
 
-
 # --- MENU 1: INPUT FORM JADWAL ---
 if menu == "Input Form Jadwal":
     st.markdown("<h1 style='color: #4A3B32;'>📝 Form Input Penjadwalan Vendor</h1>", unsafe_allow_html=True)
@@ -159,13 +111,11 @@ if menu == "Input Form Jadwal":
     
     with col1:
         tgl_input = st.date_input("Tanggal Pekerjaan", datetime.now())
-        
         vendor_select = st.selectbox("Pilih Vendor", LIST_VENDOR)
         if vendor_select == "LAINNYA (Isi Manual)":
             vendor_input = st.text_input("✍️ Ketik Nama Vendor Baru di Sini:")
         else:
             vendor_input = vendor_select
-            
         pekerjaan_input = st.text_area("Deskripsi Pekerjaan / Temuan PM")
         
     with col2:
@@ -174,9 +124,7 @@ if menu == "Input Form Jadwal":
             area_input = st.text_input("✍️ Ketik Nama Area Baru di Sini:")
         else:
             area_input = area_select
-            
         personil_input = st.number_input("Kebutuhan Personil / Man Power", min_value=1, value=2, step=1)
-        
         pic_select = st.selectbox("Pilih PIC", LIST_PIC)
         if pic_select == "LAINNYA (Isi Manual)":
             pic_input = st.text_input("✍️ Ketik Nama PIC Baru di Sini:")
@@ -195,7 +143,6 @@ if menu == "Input Form Jadwal":
             st.error("Gagal Menyimpan! Anda memilih LAINNYA, mohon isi nama PIC baru pada kolom teks.")
         else:
             tgl_formatted = tgl_input.strftime('%d/%m/%Y')
-            
             new_data = {
                 "Tanggal": tgl_formatted,
                 "Vendor": vendor_input.strip().upper(),
@@ -204,14 +151,12 @@ if menu == "Input Form Jadwal":
                 "Kebutuhan_Personil": int(personil_input),
                 "PIC": pic_input.strip().upper()
             }
-            
             df_jadwal = pd.concat([df_jadwal, pd.DataFrame([new_data])], ignore_index=True)
             save_data(df_jadwal)
             st.success(f"Berhasil menambahkan jadwal untuk vendor {vendor_input.upper()}!")
             st.rerun()
             
     st.markdown("<br><h3 style='color: #4A3B32;'>📋 Semua Data Jadwal Tersimpan</h3>", unsafe_allow_html=True)
-    
     styled_df = df_jadwal.style.set_properties(**{'background-color': '#EAD8C3', 'color': '#3B2F2F', 'border-color': '#8B5A2B'})
     st.dataframe(styled_df, use_container_width=True)
     
@@ -251,15 +196,10 @@ elif menu == "Dashboard Tampilan Vendor":
         
         df_tampil_bersih = tabel_tampil.set_index('NO').drop(columns=["Original_Index"])
         
-        # --- FITUR BARU: TOTAL MAN POWER ---
-        # 1. Mengubah indeks kolom NO menjadi string agar bisa menampung teks "TOTAL"
         df_tampil_bersih.index = df_tampil_bersih.index.astype(str)
-        # 2. Menjumlahkan keseluruhan angka pada kolom MAN POWER
         total_mp = df_tampil_bersih["MAN POWER"].sum()
-        # 3. Menyisipkan baris paling bawah untuk menampilkan Total
         df_tampil_bersih.loc['TOTAL'] = ["", "", "TOTAL MAN POWER :", total_mp]
         
-        # Menerapkan warna tabel
         styled_tabel_tampil = df_tampil_bersih.style.set_properties(**{'background-color': '#EAD8C3', 'color': '#3B2F2F', 'border-color': '#8B5A2B'})
         st.dataframe(styled_tabel_tampil, use_container_width=True)
         
