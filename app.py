@@ -127,7 +127,7 @@ if menu == "Input Form Jadwal":
         else:
             pic_input = pic_select
 
-    st.write("")
+    st.write("") 
     if st.button("💾 Simpan Jadwal", key="btn_simpan_utama"):
         if pekerjaan_input.strip() == "":
             st.error("Gagal Menyimpan! Kolom 'Pekerjaan' wajib diisi.")
@@ -174,7 +174,6 @@ elif menu == "Dashboard Tampilan Vendor":
         if v not in daftar_vendor_aktif:
             daftar_vendor_aktif.append(v)
             
-    # Key dibuat statis 100%
     vendor_terpilih = st.selectbox("Pilih Vendor yang Ingin Dilihat:", daftar_vendor_aktif, key="dash_ven_sel")
     
     st.markdown(f"<h2 style='text-align: center; background-color: #3B2F2F; color: #D2B48C; padding: 12px; border-radius: 5px; font-family: sans-serif; letter-spacing: 2px;'>SCHEDULE {vendor_terpilih.upper()}</h2>", unsafe_allow_html=True)
@@ -194,7 +193,7 @@ elif menu == "Dashboard Tampilan Vendor":
         
         df_tampil_bersih = tabel_tampil.set_index('NO').drop(columns=["Original_Index"])
         
-        # Tabel aman
+        # PERBAIKAN MUTLAK: Menggunakan st.table() murni alih-alih st.dataframe()
         st.table(df_tampil_bersih)
         
         total_mp = int(df_tampil_bersih["MAN POWER"].sum())
@@ -203,9 +202,10 @@ elif menu == "Dashboard Tampilan Vendor":
         st.write("")
         col_dl1, col_dl2 = st.columns([1, 2])
         with col_dl1:
-            # Key statis untuk cegah error 'removeChild'
-            no_hapus = st.selectbox("Pilih NO baris yang ingin dihapus:", tabel_tampil['NO'].tolist(), key="hapus_baris_sel")
-            if st.button("❌ Hapus Baris Terpilih", key="hapus_baris_btn"):
+            dinamik_id = f"{vendor_terpilih}_{tgl_filter_str}"
+            
+            no_hapus = st.selectbox("Pilih NO baris yang ingin dihapus:", tabel_tampil['NO'].tolist(), key=f"sel_hapus_{dinamik_id}")
+            if st.button("❌ Hapus Baris Terpilih", key=f"btn_hapus_{dinamik_id}"):
                 idx_asli = tabel_tampil[tabel_tampil['NO'] == no_hapus]['Original_Index'].values[0]
                 df_jadwal = df_jadwal.drop(index=idx_asli).drop(columns=["Original_Index"], errors='ignore')
                 save_data(df_jadwal)
@@ -219,7 +219,7 @@ elif menu == "Dashboard Tampilan Vendor":
             data=csv_filter,
             file_name=f"Jadwal_{vendor_terpilih}_{tgl_filter_str.replace('/', '-')}.csv",
             mime="text/csv",
-            key="dl_jadwal_btn"
+            key=f"dl_{dinamik_id}"
         )
     else:
         st.info(f"Tidak ada jadwal untuk {vendor_terpilih} pada tanggal {tgl_filter_str}. (Hari Libur / Kosong)")
@@ -228,25 +228,24 @@ elif menu == "Dashboard Tampilan Vendor":
     st.markdown(f"<h3 style='color: #4A3B32;'>➕ Tambah Jadwal Cepat untuk {vendor_terpilih}</h3>", unsafe_allow_html=True)
     with st.expander("Klik di sini untuk mengisi hari libur / jadwal kosong minggu ini"):
         
-        # Seluruh key dibuat statis 100%
-        tgl_q = st.date_input("Tanggal", tgl_filter, key="q_tgl")
-        pekerjaan_q = st.text_input("Pekerjaan", placeholder="Contoh: SH1: FOLLOW UP TEMUAN PM...", key="q_pek")
+        tgl_q = st.date_input("Tanggal", tgl_filter, key=f"q_tgl_{vendor_terpilih}")
+        pekerjaan_q = st.text_input("Pekerjaan", placeholder="Contoh: SH1: FOLLOW UP TEMUAN PM...", key=f"q_pek_{vendor_terpilih}")
         
-        area_select_q = st.selectbox("Area", LIST_AREA, key="q_area_sel")
+        area_select_q = st.selectbox("Area", LIST_AREA, key=f"q_area_sel_{vendor_terpilih}")
         if area_select_q == "LAINNYA (Isi Manual)":
-            area_q = st.text_input("✍️ Ketik Nama Area Baru (Form Cepat):", key="q_area_txt")
+            area_q = st.text_input("✍️ Ketik Nama Area Baru (Form Cepat):", key=f"q_area_txt_{vendor_terpilih}")
         else:
             area_q = area_select_q
             
-        pic_select_q = st.selectbox("PIC", LIST_PIC, key="q_pic_sel")
+        pic_select_q = st.selectbox("PIC", LIST_PIC, key=f"q_pic_sel_{vendor_terpilih}")
         if pic_select_q == "LAINNYA (Isi Manual)":
-            pic_q = st.text_input("✍️ Ketik Nama PIC Baru (Form Cepat):", key="q_pic_txt")
+            pic_q = st.text_input("✍️ Ketik Nama PIC Baru (Form Cepat):", key=f"q_pic_txt_{vendor_terpilih}")
         else:
             pic_q = pic_select_q
             
-        mp_q = st.number_input("Man Power", min_value=1, value=2, key="q_mp")
+        mp_q = st.number_input("Man Power", min_value=1, value=2, key=f"q_mp_{vendor_terpilih}")
         
-        if st.button("🚀 Simpan Ke Jadwal", key="q_btn"):
+        if st.button("🚀 Simpan Ke Jadwal", key=f"q_btn_{vendor_terpilih}"):
             if 'Original_Index' in df_jadwal.columns:
                 df_jadwal = df_jadwal.drop(columns=["Original_Index"])
                 
